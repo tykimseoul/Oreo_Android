@@ -48,7 +48,7 @@ public class WifiConnector {
         }
     }
 
-    private byte[] formRequestPacket(int port) {
+    private byte[] formRequestPacket() {
         byte[] connectPacket = new byte[64];
         connectPacket[0] = WifiCommand.WifiCommandCode.REQUEST_CONNECTION.getLength();
         connectPacket[1] = WifiCommand.WifiCommandCode.REQUEST_CONNECTION.getValue();
@@ -67,7 +67,7 @@ public class WifiConnector {
                             DatagramChannel channel = DatagramChannel.open();
                             datagramSocket = channel.socket();
                             datagramSocket.connect(serverAddress, port);
-                            byte[] connectPacket = formRequestPacket(videoSocket.getLocalPort());
+                            byte[] connectPacket = formRequestPacket();
                             sendWithException(connectPacket);
                             byte[] buffer = new byte[2048];
                             DatagramPacket pk = new DatagramPacket(buffer, buffer.length);
