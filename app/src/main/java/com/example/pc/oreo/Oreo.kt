@@ -4,15 +4,13 @@ import com.example.pc.oreo.WifiCommand.WifiCommandCode
 import java.nio.charset.StandardCharsets
 
 class Oreo {
-    val flightData = FlightData()
+    val driveData = DriveData()
     var oreoStatusChangeListener: OreoStatusChangeListener? = null
     val wifiConnector: WifiConnector = WifiConnector("192.168.123.101", 9999)
 
     val isReady: Boolean
-        get() = (flightData.gpsFixed
-                && flightData.wifiConnected
-                && flightData.bluetoothConnected
-                && flightData.batteryAdequate)
+        get() = (driveData.wifiConnected
+                && driveData.batteryAdequate)
 
     val isConnected: Boolean
         get() = (wifiConnector.datagramSocket != null
@@ -25,7 +23,7 @@ class Oreo {
     }
 
     fun disconnect() {
-        if (flightData.flying) {
+        if (driveData.flying) {
             land()
         }
         wifiConnector.disconnect()
@@ -62,9 +60,6 @@ class Oreo {
         }
 
         var boost = 0.0f
-        if (flightData.speedMode > 0) {
-            boost = 1.0f
-        }
 
         val rx = controlCommand.rightX
         val ry = controlCommand.rightY
@@ -94,19 +89,14 @@ class Oreo {
     }
 
     fun setWifiConnection(connection: Boolean) {
-        flightData.wifiConnected = connection
+        driveData.wifiConnected = connection
         oreoStatusChangeListener?.onConnectionChanged()
     }
 
-    fun setBluetoothConnection(connection: Boolean) {
-        flightData.bluetoothConnected = connection
-        oreoStatusChangeListener?.onConnectionChanged()
-    }
-
-    fun updateFlightData(data: IntArray) {
-        flightData.setData(data)
-        oreoStatusChangeListener?.onBatteryStateUpdate(flightData.batteryVoltage, flightData.batteryAmperage)
-        oreoStatusChangeListener?.onMovementUpdate(flightData.speed, flightData.altitude)
+    fun updateDriveData(data: IntArray) {
+        driveData.setData(data)
+        oreoStatusChangeListener?.onBatteryStateUpdate(driveData.batteryVoltage, driveData.batteryAmperage)
+        oreoStatusChangeListener?.onMovementUpdate(driveData.speed)
     }
 
     interface OreoStatusChangeListener {
@@ -114,6 +104,6 @@ class Oreo {
 
         fun onBatteryStateUpdate(voltage: Double, amperage: Int)
 
-        fun onMovementUpdate(velocity: Double, altitude: Double)
+        fun onMovementUpdate(velocity: Double)
     }
 }

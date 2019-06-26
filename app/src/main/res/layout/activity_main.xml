@@ -43,7 +43,7 @@
         android:id="@+id/driveStatusRecyclerView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/flight_status_bar_background"
+        android:background="@drawable/drive_status_bar_background"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         app:layout_constraintLeft_toLeftOf="parent"

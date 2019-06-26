@@ -31,10 +31,10 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     private var wifiScanResults: List<ScanResult>? = null
     private val connectionReceiver = ConnectionReceiver()
     private val oreo=Oreo()
-    private var flightStatusAdapter: FlightStatusAdapter? = null
-    private lateinit var flightFields: Array<String>
-    private lateinit var flightIcons: TypedArray
-    private val flightValues = DoubleArray(10)
+    private var driveStatusAdapter: DriveStatusAdapter? = null
+    private lateinit var driveFields: Array<String>
+    private lateinit var driveIcons: TypedArray
+    private val driveValues = DoubleArray(10)
     private val currentFrame = ByteArray(20480)
     private var chunkOffset = 0
     private var streamPaused = false
@@ -46,13 +46,13 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         oreo.wifiConnector.setWifiDataChangeListener(this)
         requestAllPermissions()
 
-        flightFields = resources.getStringArray(R.array.flight_status_fields)
-        flightIcons = resources.obtainTypedArray(R.array.flight_status_icons)
-        flightStatusAdapter = FlightStatusAdapter(this, flightFields, flightIcons, flightValues)
-        val flightLayoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.HORIZONTAL, false)
-        driveStatusRecyclerView.layoutManager = flightLayoutManager
+        driveFields = resources.getStringArray(R.array.drive_status_fields)
+        driveIcons = resources.obtainTypedArray(R.array.drive_status_icons)
+        driveStatusAdapter = DriveStatusAdapter(this, driveFields, driveIcons, driveValues)
+        val driveLayoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.HORIZONTAL, false)
+        driveStatusRecyclerView.layoutManager = driveLayoutManager
         (driveStatusRecyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        driveStatusRecyclerView.adapter = flightStatusAdapter
+        driveStatusRecyclerView.adapter = driveStatusAdapter
     }
 
     override fun onStart() {
@@ -64,16 +64,16 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         enableWifi()
     }
 
-    private fun updateFlightIcons(changes: BooleanArray?) {
+    private fun updateDriveIcons(changes: BooleanArray?) {
         runOnUiThread {
             if (changes != null) {
                 for (i in changes.indices) {
                     if (changes[i]) {
-                        flightStatusAdapter!!.notifyItemChanged(i)
+                        driveStatusAdapter!!.notifyItemChanged(i)
                     }
                 }
             }
-            flightStatusAdapter!!.notifyItemRangeChanged(StatusIconType.WIFI.value, 2)
+            driveStatusAdapter!!.notifyItemRangeChanged(StatusIconType.WIFI.value, 2)
         }
     }
 
@@ -146,15 +146,15 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         when (connection) {
             WifiIconView.WIFI_STATE_CONNECTED -> {
                 oreo.setWifiConnection(true)
-                flightValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_CONNECTED.toDouble()
+                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_CONNECTED.toDouble()
             }
             WifiIconView.WIFI_STATE_DISCONNECTED -> {
                 oreo.setWifiConnection(false)
-                flightValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_DISCONNECTED.toDouble()
+                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_DISCONNECTED.toDouble()
             }
             WifiIconView.WIFI_STATE_PENDING -> {
                 oreo.setWifiConnection(false)
-                flightValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_PENDING.toDouble()
+                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_PENDING.toDouble()
             }
         }
     }
@@ -181,21 +181,20 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     }
 
     override fun onConnectionChanged() {
-        updateFlightIcons(null)
+        updateDriveIcons(null)
     }
 
     override fun onBatteryStateUpdate(voltage: Double, amperage: Int) {
         runOnUiThread {
-            flightValues[StatusIconType.BATTERY.value] = voltage
-            flightStatusAdapter!!.notifyItemChanged(2)
+            driveValues[StatusIconType.BATTERY.value] = voltage
+            driveStatusAdapter!!.notifyItemChanged(2)
         }
     }
 
-    override fun onMovementUpdate(velocity: Double, altitude: Double) {
+    override fun onMovementUpdate(velocity: Double) {
         runOnUiThread {
-            flightValues[0] = velocity
-            flightValues[1] = altitude
-            flightStatusAdapter!!.notifyItemRangeChanged(0, 2)
+            driveValues[0] = velocity
+            driveStatusAdapter!!.notifyItemRangeChanged(0, 1)
         }
     }
 
@@ -204,7 +203,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
             WifiCommand.WifiCommandCode.APPROVE_CONNECTION -> updateWifiConnection(WifiIconView.WIFI_STATE_CONNECTED)
             WifiCommand.WifiCommandCode.FRAME_DATA -> {
             }
-            WifiCommand.WifiCommandCode.FLIGHT_DATA -> oreo.updateFlightData(command.flightDataPayload)
+            WifiCommand.WifiCommandCode.DRIVE_DATA -> oreo.updateDriveData(command.driveDataPayload)
         }
     }
 

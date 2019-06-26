@@ -15,7 +15,9 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
             intArrayOf(R.drawable.ic_wifi_off_white_48dp,
                     R.drawable.ic_wifi_weak_white_48dp,
                     R.drawable.ic_wifi_white_48dp,
-                    R.raw.wifi2))
+                    R.raw.wifi2),
+            intArrayOf(R.drawable.ic_arrow_decision_auto_white_48dp,
+                    R.drawable.ic_arrow_decision_auto_green_48dp))
     lateinit var iconClickListener: IconClickListener
     var type = -1
 
@@ -37,11 +39,9 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
 
     enum class StatusIconType constructor(val value: Int) {
         UNCLICKABLE(0),
-        TIMER(1),
         WIFI(4),
-        BLUETOOTH(5),
         BATTERY(3),
-        GPS(6)
+        SELF_DRIVE(5)
     }
 
     interface IconClickListener {

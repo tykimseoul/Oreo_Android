@@ -7,7 +7,7 @@ public class WifiCommand {
     private byte[] rawData;
     private WifiCommandCode type;
     private byte[] payload;
-    private int[] flightDataPayload;
+    private int[] driveDataPayload;
 
     public WifiCommand(byte[] rawData) {
         this.rawData = rawData;
@@ -30,18 +30,18 @@ public class WifiCommand {
                 break;
             }
         }
-        if (type == WifiCommandCode.FLIGHT_DATA) {
+        if (type == WifiCommandCode.DRIVE_DATA) {
             int payloadLength = rawData.length - 2;
             payload = new byte[payloadLength];
             System.arraycopy(rawData, 2, payload, 0, payloadLength);
             try {
                 JSONArray arr = new JSONArray(new String(payload));
-                flightDataPayload = new int[arr.length()];
+                driveDataPayload = new int[arr.length()];
                 for (int i = 0; i < arr.length(); i++) {
-                    flightDataPayload[i] = arr.optInt(i);
+                    driveDataPayload[i] = arr.optInt(i);
                 }
             } catch (JSONException e) {
-                flightDataPayload = new int[0];
+                driveDataPayload = new int[0];
             }
         } else {
             int payloadLength = type.getLength() - 2;
@@ -54,8 +54,8 @@ public class WifiCommand {
         return type;
     }
 
-    public int[] getFlightDataPayload() {
-        return flightDataPayload;
+    public int[] getDriveDataPayload() {
+        return driveDataPayload;
     }
 
     public enum WifiCommandCode {
@@ -66,7 +66,7 @@ public class WifiCommand {
         LAND(104, 2),
         REQUEST_STREAM(105, 2),
         FRAME_DATA(106, 2),
-        FLIGHT_DATA(107, 36),
+        DRIVE_DATA(107, 36),
         CAMERA_SETTINGS(108, 10);
 
         private final byte value;
