@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="2dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="4dp"
+    android:layout_marginBottom="4dp"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <com.example.pc.telloplus.GPSIconView
+        android:id="@+id/icon"
+        android:layout_width="@dimen/status_icon_size"
+        android:layout_height="@dimen/status_icon_size"
+        android:layout_margin="@dimen/status_icon_margin"
+        android:src="@drawable/ic_speedometer_white_48dp" />
+
+</LinearLayout>

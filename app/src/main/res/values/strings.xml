@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">TelloPlus</string>
+    <string name="velocity">Velocity</string>
+    <string name="battery">Battery</string>
+    <string name="wifi" translatable="false">Wi-fi</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="altitude">Altitude</string>
+    <string name="capacity">Capacity</string>
+    <string name="settings">Settings</string>
+    <string name="battery_low">Low Battery Alert</string>
+    <string name="auto_bitrate">Auto</string>
+    <string name="gps" translatable="false">GPS</string>
+    <string name="latitude">Lat.</string>
+    <string name="longitude">Lng.</string>
+    <string name="distance">Dst.</string>
+    <string name="direction">Dtn.</string>
+    <string name="duration">Duration</string>
+    <string name="framerate">Framerate</string>
+    <string name="iso" translatable="false">ISO</string>
+    <string name="resolution">Resolution</string>
+    <string name="video_stabilization">Video Stabilization</string>
+    <string name="contrast">Contrast</string>
+    <string name="white_balance">White Balance</string>
+    <string name="image_format">Image Format</string>
+    <string name="shutter_speed">Shutter Speed</string>
+    <string name="exposure_compensation">EV</string>
+    <string name="wb_auto">Auto</string>
+    <string name="wb_sunlight">Sunlight</string>
+    <string name="wb_cloudy">Cloudy</string>
+    <string name="wb_fluorescent">Fluorescent</string>
+    <string name="wb_incandescent">Incandescent</string>
+    <string name="format_jpeg" translatable="false">JPEG</string>
+    <string name="format_png" translatable="false">PNG</string>
+    <string name="format_gif" translatable="false">GIF</string>
+    <string name="format_bmp" translatable="false">BMP</string>
+    <string name="format_rgba" translatable="false">RGBA</string>
+    <string name="format_yuv" translatable="false">YUV</string>
+    <string name="slider_text_enabled">Slide to take off</string>
+    <string name="slider_text_disabled">Unable to take off</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="status_text_size">13sp</dimen>
+    <dimen name="status_icon_size">18dp</dimen>
+    <dimen name="status_icon_margin">2dp</dimen>
+    <dimen name="function_button_size">40dp</dimen>
+    <dimen name="function_icon_size">26dp</dimen>
+    <dimen name="function_button_icon_margin">7dp</dimen>
+    <dimen name="switch_height">28dp</dimen>
+    <dimen name="switch_width">56dp</dimen>
+    <dimen name="switch_height_mini">22dp</dimen>
+    <dimen name="switch_width_mini">54dp</dimen>
+    <dimen name="switch_half_height">11dp</dimen>
+    <dimen name="seekbar_width">180dp</dimen>
+    <dimen name="switch_corner_radius">14dp</dimen>
+    <dimen name="setting_item_height">54dp</dimen>
+</resources>

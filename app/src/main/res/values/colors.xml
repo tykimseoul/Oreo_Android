@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">@color/colorWarning</color>
+    <color name="colorPrimaryText">#de000000</color>
+    <color name="colorSecondaryText">#89000000</color>
+    <color name="colorBrightPrimaryText">#deFFFFFF</color>
+    <color name="colorBrightSecondaryText">#89FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="colorWarning">#FF4D51</color>
+    <color name="colorWifiOn">#40de55</color>
+    <color name="colorBluetoothOn">#4aa4ff</color>
+    <color name="colorAlert">#ffee58</color>
+    <color name="colorShadow">#66000000</color>
+    <color name="colorRoute">#1564bf</color>
+    <color name="colorMarker">#e1f5fe</color>
+    <color name="colorSliderDisabled">#9e9e9e</color>
+</resources>

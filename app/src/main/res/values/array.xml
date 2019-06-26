@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="flight_status_fields">
+        <item>@string/velocity</item>
+        <item>@string/battery</item>
+        <item>@string/wifi</item>
+    </array>
+    <array name="flight_status_icons">
+        <item>@drawable/ic_speedometer_white_48dp</item>
+        <item>@drawable/ic_battery_full_white_48dp</item>
+        <item>@drawable/ic_wifi_off_white_48dp</item>
+    </array>
+</resources>
