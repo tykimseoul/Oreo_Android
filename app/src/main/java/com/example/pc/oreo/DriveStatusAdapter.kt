@@ -42,11 +42,11 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val viewType = getItemViewType(position)
-        when (viewType) {
+        when (getItemViewType(position)) {
             StatusIconType.UNCLICKABLE.value -> (holder as DriveStatusViewHolder).bind(position)
             StatusIconType.BATTERY.value -> (holder as BatteryDriveStatusViewHolder).bind(position)
             StatusIconType.WIFI.value -> (holder as WifiDriveStatusViewHolder).bind(position)
+            StatusIconType.SELF_DRIVE.value->(holder as SelfDriveStatusViewHolder).bind(position)
         }
     }
 

@@ -9,7 +9,7 @@
     android:gravity="center"
     android:orientation="horizontal">
 
-    <com.example.pc.telloplus.WifiIconView
+    <com.example.pc.oreo.WifiIconView
         android:id="@+id/icon"
         android:layout_width="@dimen/status_icon_size"
         android:layout_height="@dimen/status_icon_size"

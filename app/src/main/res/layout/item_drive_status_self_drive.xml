@@ -9,11 +9,11 @@
     android:gravity="center"
     android:orientation="horizontal">
 
-    <com.example.pc.telloplus.GPSIconView
+    <com.example.pc.oreo.SelfDriveIconView
         android:id="@+id/icon"
         android:layout_width="@dimen/status_icon_size"
         android:layout_height="@dimen/status_icon_size"
         android:layout_margin="@dimen/status_icon_margin"
-        android:src="@drawable/ic_speedometer_white_48dp" />
+        android:src="@drawable/ic_arrow_decision_auto_white_48dp" />
 
 </LinearLayout>

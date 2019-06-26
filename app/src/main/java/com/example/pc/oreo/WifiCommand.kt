@@ -4,8 +4,8 @@ import org.json.JSONArray
 import org.json.JSONException
 
 class WifiCommand {
-    private var rawData: ByteArray? = null
-    var type: WifiCommandCode? = null
+    private lateinit var rawData: ByteArray
+    lateinit var type: WifiCommandCode
         private set
     private lateinit var payload: ByteArray
     lateinit var driveDataPayload: IntArray
@@ -20,12 +20,12 @@ class WifiCommand {
     }
 
     private fun parseData() {
-        type = WifiCommandCode.values().first { code -> code.value == rawData?.first() }
+        type = WifiCommandCode.values().first { code -> code.value == rawData.first() }
         when (type) {
             WifiCommandCode.DRIVE_DATA -> {
-                val payloadLength = rawData!!.size - 2
+                val payloadLength = rawData.size - 2
                 payload = ByteArray(payloadLength)
-                System.arraycopy(rawData, 2, payload, 0, payloadLength)
+                rawData.copyInto(payload, 0, 2)
                 try {
                     val arr = JSONArray(String(payload))
                     driveDataPayload = IntArray(arr.length())
@@ -37,9 +37,9 @@ class WifiCommand {
                 }
             }
             else -> {
-                val payloadLength = type!!.length - 2
+                val payloadLength = type.length - 2
                 payload = ByteArray(payloadLength)
-                System.arraycopy(rawData, 2, payload, 0, payloadLength)
+                rawData.copyInto(payload, 0, 2)
             }
         }
     }

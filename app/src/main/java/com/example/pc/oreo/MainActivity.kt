@@ -17,11 +17,9 @@ import android.support.v7.widget.SimpleItemAnimator
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-
 import com.example.pc.oreo.StatusIconView.StatusIconType
 import kotlinx.android.synthetic.main.activity_main.*
-
-import java.util.ArrayList
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiConnector.TelloWifiDataChangeListener, StatusIconView.IconClickListener {
@@ -30,7 +28,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     private var wifiManager: WifiManager? = null
     private var wifiScanResults: List<ScanResult>? = null
     private val connectionReceiver = ConnectionReceiver()
-    private val oreo=Oreo()
+    private val oreo = Oreo()
     private var driveStatusAdapter: DriveStatusAdapter? = null
     private lateinit var driveFields: Array<String>
     private lateinit var driveIcons: TypedArray
@@ -42,7 +40,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        oreo.oreoStatusChangeListener=this
+        oreo.oreoStatusChangeListener = this
         oreo.wifiConnector.setWifiDataChangeListener(this)
         requestAllPermissions()
 
@@ -221,14 +219,10 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         chunkOffset += size
     }
 
-    fun onLanding() {
-        oreo.land()
-    }
-
-    override fun onIconClick(type: StatusIconView.StatusIconType) {
+    override fun onIconClick(type: StatusIconType) {
         when (type) {
-            StatusIconView.StatusIconType.WIFI -> enableWifi()
-            StatusIconView.StatusIconType.BATTERY -> {
+            StatusIconType.WIFI -> enableWifi()
+            StatusIconType.BATTERY -> {
             }
         }
     }
@@ -245,7 +239,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            87 -> if (grantResults.size > 0) {
+            87 -> if (grantResults.isNotEmpty()) {
                 missingPermissions = ArrayList()
                 for (i in grantResults.indices) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
