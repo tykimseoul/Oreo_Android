@@ -39,9 +39,9 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
 
     enum class StatusIconType constructor(val value: Int) {
         UNCLICKABLE(0),
-        WIFI(4),
-        BATTERY(3),
-        SELF_DRIVE(5)
+        BATTERY(1),
+        WIFI(2),
+        SELF_DRIVE(3)
     }
 
     interface IconClickListener {

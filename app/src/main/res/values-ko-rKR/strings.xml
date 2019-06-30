@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="velocity">속력</string>
+    <string name="battery">배터리</string>
+    <string name="self_drive">자율주행</string>
+</resources>

@@ -13,7 +13,6 @@
         android:id="@+id/icon"
         android:layout_width="@dimen/status_icon_size"
         android:layout_height="@dimen/status_icon_size"
-        android:layout_margin="@dimen/status_icon_margin"
-        android:src="@drawable/ic_arrow_decision_auto_white_48dp" />
+        android:layout_margin="@dimen/status_icon_margin" />
 
 </LinearLayout>

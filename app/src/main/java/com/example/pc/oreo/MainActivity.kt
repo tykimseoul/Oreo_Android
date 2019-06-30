@@ -14,16 +14,23 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SimpleItemAnimator
+import android.util.DisplayMetrics
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import com.curiouscreature.kotlin.math.Float2
 import com.example.pc.oreo.StatusIconView.StatusIconType
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 
 class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiConnector.TelloWifiDataChangeListener, StatusIconView.IconClickListener {
-    private val permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET)
+    private val permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.CHANGE_WIFI_STATE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.INTERNET)
     private var missingPermissions: ArrayList<Int>? = null
     private var wifiManager: WifiManager? = null
     private var wifiScanResults: List<ScanResult>? = null
@@ -225,6 +232,32 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
             StatusIconType.BATTERY -> {
             }
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val mActivePointerId = event.getPointerId(0)
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val touchPoint = event.findPointerIndex(mActivePointerId).let { pointerIndex ->
+                    Float2(event.getX(pointerIndex), event.getY(pointerIndex))
+                }
+                controlView.consumeTouch(touchPoint)
+                val displayMetrics = DisplayMetrics()
+                windowManager.defaultDisplay.getMetrics(displayMetrics)
+                if (touchPoint.x < displayMetrics.widthPixels / 2) {
+
+                } else {
+
+                }
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+
+            }
+        }
+        return false
     }
 
     private fun requestAllPermissions() {

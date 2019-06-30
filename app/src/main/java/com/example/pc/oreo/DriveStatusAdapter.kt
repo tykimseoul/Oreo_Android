@@ -34,9 +34,13 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_battery, parent, false)
                 BatteryDriveStatusViewHolder(itemView)
             }
-            else -> {
+            StatusIconType.WIFI.value -> {
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_wifi, parent, false)
                 WifiDriveStatusViewHolder(itemView)
+            }
+            else ->{
+                itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_self_drive, parent, false)
+                SelfDriveStatusViewHolder(itemView)
             }
         }
     }
