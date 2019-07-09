@@ -231,11 +231,11 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         }
     }
 
-    override fun onAccelerate(power: Int) {
+    override fun onAccelerate(power: Float) {
 
     }
 
-    override fun onSteer(angle: Int) {
+    override fun onSteer(angle: Float) {
 
     }
 

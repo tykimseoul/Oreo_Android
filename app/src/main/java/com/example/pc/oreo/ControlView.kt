@@ -15,8 +15,8 @@ class ControlView : View {
         (context as MainActivity).windowManager.defaultDisplay.getMetrics(displayMetrics)
         Float2(displayMetrics.widthPixels.toFloat(), displayMetrics.heightPixels.toFloat())
     }
-    val controlViewListener: ControlViewListener by lazy { context as MainActivity }
-    lateinit var ids: Array<Int?>
+    private val controlViewListener: ControlViewListener by lazy { context as MainActivity }
+    private lateinit var ids: Array<Int?>
     lateinit var types: Array<TouchType?>
 
     constructor(context: Context) : super(context)
@@ -69,7 +69,7 @@ class ControlView : View {
         return true
     }
 
-    fun MotionEvent.getPointerIdOrElse(idx: Int): Int? {
+    private fun MotionEvent.getPointerIdOrElse(idx: Int): Int? {
         return try {
             getPointerId(idx)
         } catch (e: IllegalArgumentException) {
@@ -77,7 +77,7 @@ class ControlView : View {
         }
     }
 
-    fun MotionEvent.getPointerCoordinates(id: Int?): Float2? {
+    private fun MotionEvent.getPointerCoordinates(id: Int?): Float2? {
         return id?.let {
             findPointerIndex(it).let { pointerIndex ->
                 Float2(getX(pointerIndex), getY(pointerIndex))
@@ -95,13 +95,18 @@ class ControlView : View {
         }
     }
 
-    private fun calculateSteerAngle(touchPoint: Float2): Int {
-        val xDisplacement = touchPoint.x - screenSize.x / 4.0
-        return 0
+    private fun calculateSteerAngle(touchPoint: Float2): Float {
+        val range = screenSize.x / 4.0
+        val xDisplacement = touchPoint.x - range
+        val clamped = xDisplacement.coerceIn(-range, range)
+        return (clamped / range).toFloat()
     }
 
-    private fun calculateAcceleration(touchPoint: Float2): Int {
-        return 0
+    private fun calculateAcceleration(touchPoint: Float2): Float {
+        val range = screenSize.y / 2.0
+        val yDisplacement = screenSize.y - touchPoint.y - screenSize.y / 4.0
+        val clamped = yDisplacement.coerceIn(0.0, range)
+        return (clamped / range).toFloat()
     }
 
     enum class TouchType constructor(val value: Int) {
@@ -110,7 +115,7 @@ class ControlView : View {
     }
 
     interface ControlViewListener {
-        fun onSteer(angle: Int)
-        fun onAccelerate(power: Int)
+        fun onSteer(angle: Float)
+        fun onAccelerate(power: Float)
     }
 }
