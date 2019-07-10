@@ -1,12 +1,12 @@
 package com.example.pc.oreo
 
 import com.example.pc.oreo.WifiCommand.WifiCommandCode
-import java.nio.charset.StandardCharsets
 
 class Oreo {
     val driveData = DriveData()
     var oreoStatusChangeListener: OreoStatusChangeListener? = null
     val wifiConnector: WifiConnector = WifiConnector("192.168.123.101", 9999)
+    val controlCommand: ControlCommand = ControlCommand()
 
     val isReady: Boolean
         get() = (driveData.wifiConnected
@@ -14,9 +14,7 @@ class Oreo {
 
     val isConnected: Boolean
         get() = (wifiConnector.datagramSocket != null
-                && wifiConnector.datagramSocket.isConnected
-                && wifiConnector.videoSocket != null
-                && wifiConnector.videoSocket.isBound)
+                && wifiConnector.datagramSocket!!.isConnected)
 
     fun connect() {
         wifiConnector.connect()
@@ -54,6 +52,10 @@ class Oreo {
         return result
     }
 
+    fun startControlStream() {
+
+    }
+
     fun sendControl(controlCommand: ControlCommand) {
         if (!isConnected) {
             return
@@ -68,10 +70,6 @@ class Oreo {
 
         val packet = createJoyPacket(rx, ry, lx, ly, boost)
         wifiConnector.send(packet)
-    }
-
-    fun sendCameraSettings(settings: String) {
-        wifiConnector.send(settings.toByteArray(StandardCharsets.UTF_8))
     }
 
     fun takeOff() {

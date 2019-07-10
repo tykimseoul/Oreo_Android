@@ -17,7 +17,7 @@ class ControlView : View {
     }
     private val controlViewListener: ControlViewListener by lazy { context as MainActivity }
     private lateinit var ids: Array<Int?>
-    lateinit var types: Array<TouchType?>
+    private lateinit var types: Array<TouchType?>
 
     constructor(context: Context) : super(context)
 

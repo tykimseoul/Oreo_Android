@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiConnector.TelloWifiDataChangeListener, StatusIconView.IconClickListener, ControlView.ControlViewListener {
+class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiConnector.OreoWifiDataChangeListener, StatusIconView.IconClickListener, ControlView.ControlViewListener {
     private val permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_WIFI_STATE,
             Manifest.permission.CHANGE_WIFI_STATE,
