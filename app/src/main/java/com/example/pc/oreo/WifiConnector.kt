@@ -11,6 +11,7 @@ import io.reactivex.subscribers.DisposableSubscriber
 import java.io.IOException
 import java.net.*
 import java.nio.channels.DatagramChannel
+import java.util.concurrent.TimeUnit
 
 class WifiConnector(ad: String, serverPort: Int) {
     var datagramSocket: DatagramSocket? = null
@@ -19,6 +20,7 @@ class WifiConnector(ad: String, serverPort: Int) {
     private var port: Int = 0
     private var wifiDataChangeListener: OreoWifiDataChangeListener? = null
     private val compositeDisposable = CompositeDisposable()
+    lateinit var oreo: OreoCommandListener
 
     init {
         try {
@@ -48,13 +50,13 @@ class WifiConnector(ad: String, serverPort: Int) {
                     try {
                         val channel = DatagramChannel.open()
                         datagramSocket = channel.socket()
-                        datagramSocket!!.connect(serverAddress, port)
+                        datagramSocket?.connect(serverAddress, port)
                         val connectPacket = formRequestPacket()
                         sendWithException(connectPacket)
                         val buffer = ByteArray(2048)
                         val pk = DatagramPacket(buffer, buffer.size)
-                        datagramSocket!!.soTimeout = 100
-                        datagramSocket!!.receive(pk)
+                        datagramSocket?.soTimeout = 100
+                        datagramSocket?.receive(pk)
                         val replyCode = pk.data[1].toInt()
                         if (replyCode == WifiCommandCode.APPROVE_CONNECTION.value.toInt()) {
                             emitter.onNext(replyCode)
@@ -88,36 +90,33 @@ class WifiConnector(ad: String, serverPort: Int) {
         )
     }
 
-    fun send(message: ByteArray) {
+    fun streamControls() {
         compositeDisposable.add(
-                Observable.create(ObservableOnSubscribe<Boolean> { emitter ->
-                    if (emitter.isDisposed) {
-                        return@ObservableOnSubscribe
-                    }
-                    try {
-                        val datagramPacket = DatagramPacket(message, message.size, serverAddress, port)
-                        datagramSocket!!.send(datagramPacket)
-                        emitter.onNext(true)
-                        emitter.onComplete()
-                    } catch (e: IOException) {
-                        if (!emitter.isDisposed) {
-                            emitter.onError(e)
+                Flowable.interval(100, TimeUnit.MILLISECONDS)
+                        .onBackpressureLatest()
+                        .map {
+                            val controls = oreo.onNotifyCommandUpdate()
+                            val datagramPacket = DatagramPacket(controls, controls.size, serverAddress, port)
+                            datagramSocket?.soTimeout = 150
+                            datagramSocket?.send(datagramPacket)
+                            true
                         }
-                    }
-                }).subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.trampoline())
+                        .doOnError { err -> Log.e("control send error", err.localizedMessage) }
                         .retry()
-                        .subscribeWith(object : DisposableObserver<Boolean>() {
-                            override fun onNext(sent: Boolean) {
-                                Log.e("sending", "")
+                        .subscribeWith(object : DisposableSubscriber<Boolean>() {
+                            override fun onNext(result: Boolean) {
+                                Log.e("control sent ", result.toString())
                             }
 
                             override fun onError(e: Throwable) {
-                                Log.e("sendingError", "AAAAAAAAAA")
+                                Log.e("sendError", e.localizedMessage)
+                                dispose()
                             }
 
                             override fun onComplete() {
-                                Log.e("sendingComplete", "BBBBBBBB")
+                                Log.e("sendComplete", "BBBBBBBB")
                                 dispose()
                             }
                         })
@@ -200,5 +199,9 @@ class WifiConnector(ad: String, serverPort: Int) {
         fun onWifiCommandReceived(command: WifiCommand)
 
         fun onVideoDataReceived(videoBuffer: ByteArray, size: Int)
+    }
+
+    interface OreoCommandListener {
+        fun onNotifyCommandUpdate(): ByteArray
     }
 }

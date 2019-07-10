@@ -62,6 +62,10 @@ class ControlCommand : Parcelable {
         leftY = -1 * (leftY * 500.0 / 511.0).toInt() + 1500
     }
 
+    fun toDataPacket():ByteArray{
+        return ByteArray(0)
+    }
+
     companion object CREATOR : Parcelable.Creator<ControlCommand> {
         override fun createFromParcel(parcel: Parcel): ControlCommand {
             return ControlCommand(parcel)
