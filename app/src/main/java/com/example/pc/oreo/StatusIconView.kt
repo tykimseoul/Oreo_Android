@@ -17,9 +17,12 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
                     R.drawable.ic_wifi_white_48dp,
                     R.raw.wifi2),
             intArrayOf(R.drawable.ic_arrow_decision_auto_white_48dp,
-                    R.drawable.ic_arrow_decision_auto_green_48dp))
+                    R.drawable.ic_arrow_decision_auto_green_48dp),
+            intArrayOf(R.drawable.ic_r_red_48dp,
+                    R.drawable.ic_p_white_48dp,
+                    R.drawable.ic_d_blue_48dp))
     lateinit var iconClickListener: IconClickListener
-    var type = -1
+    var type: StatusIconType = StatusIconType.UNCLICKABLE
 
     constructor(context: Context) : super(context) {
         this.setOnClickListener(this)
@@ -33,15 +36,16 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
 
     }
 
-    open fun updateView(value: Double) {
-        setImageResource(statuses[type][value.toInt()])
+    open fun updateView(value: Int) {
+        setImageResource(statuses[type.value][value])
     }
 
     enum class StatusIconType constructor(val value: Int) {
         UNCLICKABLE(0),
         BATTERY(1),
         WIFI(2),
-        SELF_DRIVE(3)
+        SELF_DRIVE(3),
+        GEARBOX(4)
     }
 
     interface IconClickListener {

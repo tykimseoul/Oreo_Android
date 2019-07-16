@@ -3,4 +3,5 @@
     <string name="velocity">속력</string>
     <string name="battery">배터리</string>
     <string name="self_drive">자율주행</string>
+    <string name="gear">기어</string>
 </resources>

@@ -5,4 +5,5 @@
     <string name="wifi" translatable="false">Wi-fi</string>
     <string name="gps" translatable="false">GPS</string>
     <string name="self_drive">Self-drive</string>
+    <string name="gear">Gear</string>
 </resources>

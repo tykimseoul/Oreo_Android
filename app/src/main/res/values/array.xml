@@ -5,11 +5,13 @@
         <item>@string/battery</item>
         <item>@string/wifi</item>
         <item>@string/self_drive</item>
+        <item>@string/gear</item>
     </array>
     <array name="drive_status_icons">
         <item>@drawable/ic_speedometer_white_48dp</item>
         <item>@drawable/ic_battery_full_white_48dp</item>
         <item>@drawable/ic_wifi_off_white_48dp</item>
         <item>@drawable/ic_arrow_decision_auto_white_48dp</item>
+        <item>@drawable/ic_p_white_48dp</item>
     </array>
 </resources>

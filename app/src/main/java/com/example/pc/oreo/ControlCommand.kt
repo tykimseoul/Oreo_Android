@@ -2,68 +2,31 @@ package com.example.pc.oreo
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.beust.klaxon.Json
 
-class ControlCommand : Parcelable {
-    var rightX: Int = 0
-        set(value) {
-            field = value
-            valid = 1
-        }
-    var rightY: Int = 0
-        set(value) {
-            field = value
-            valid = 1
-        }
-    var leftX: Int = 0
-        set(value) {
-            field = value
-            valid = 1
-        }
-    var leftY: Int = 0
-        set(value) {
-            field = value
-            valid = 1
-        }
-    private var valid = 0
+data class ControlCommand(
+        @Json(name = "steer")
+        var steerPercentage: Float = 0.0f,
+        @Json(name = "speed")
+        var speedPercentage: Float = 0.0f) : Parcelable {
 
-    val isValid: Boolean
-        get() = valid == 1
+    constructor(parcel: Parcel) : this() {
+        steerPercentage = parcel.readFloat()
+        speedPercentage = parcel.readFloat()
+    }
 
-    constructor()
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeFloat(steerPercentage)
+        parcel.writeFloat(speedPercentage)
+    }
 
-    constructor(parcel: Parcel) {
-        rightX = parcel.readInt()
-        rightY = parcel.readInt()
-        leftX = parcel.readInt()
-        leftY = parcel.readInt()
-        valid = parcel.readInt()
+    fun reset() {
+        steerPercentage = 0.0f
+        speedPercentage = 0.0f
     }
 
     override fun describeContents(): Int {
         return 0
-    }
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(rightX)
-        dest.writeInt(rightY)
-        dest.writeInt(leftX)
-        dest.writeInt(leftY)
-        dest.writeInt(valid)
-    }
-
-    override fun toString(): String {
-        return "JoystickState(rightX=$rightX, rightY=$rightY, leftX=$leftX, leftY=$leftY, valid=$valid)"
-    }
-
-    fun convertToMSP() {
-        rightX = -1 * (rightX * 500.0 / 511.0).toInt() + 1500
-        rightY = -1 * (rightY * 500.0 / 511.0).toInt() + 1500
-        leftX = -1 * (leftX * 500.0 / 511.0).toInt() + 1500
-        leftY = -1 * (leftY * 500.0 / 511.0).toInt() + 1500
-    }
-
-    fun toDataPacket():ByteArray{
-        return ByteArray(0)
     }
 
     companion object CREATOR : Parcelable.Creator<ControlCommand> {

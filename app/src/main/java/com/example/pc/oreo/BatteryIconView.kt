@@ -7,7 +7,7 @@ class BatteryIconView : StatusIconView {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
-    override fun updateView(value: Double) {
+    override fun updateView(value: Int) {
         when {
             value > 10 -> setImageResource(statuses[StatusIconType.BATTERY.value][3])
             value > 7 -> setImageResource(statuses[StatusIconType.BATTERY.value][2])

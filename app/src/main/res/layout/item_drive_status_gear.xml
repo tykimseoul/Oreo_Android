@@ -9,17 +9,10 @@
     android:gravity="center"
     android:orientation="horizontal">
 
-    <com.example.pc.oreo.BatteryIconView
+    <com.example.pc.oreo.GearboxIconView
         android:id="@+id/icon"
         android:layout_width="@dimen/status_icon_size"
         android:layout_height="@dimen/status_icon_size"
         android:padding="@dimen/status_icon_margin" />
-
-    <TextView
-        android:id="@+id/value"
-        android:layout_width="34dp"
-        android:layout_height="wrap_content"
-        android:text="11.4V"
-        android:textSize="@dimen/status_text_size" />
 
 </LinearLayout>

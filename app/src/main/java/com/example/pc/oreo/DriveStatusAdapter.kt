@@ -11,14 +11,15 @@ import android.widget.TextView
 
 import com.example.pc.oreo.StatusIconView.StatusIconType
 
-class DriveStatusAdapter(private val context: Context, private val titles: Array<String>, private val icons: TypedArray, private val values: DoubleArray) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class DriveStatusAdapter(private val context: Context, private val titles: Array<String>, private val icons: TypedArray, private val values: IntArray) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemViewType(position: Int): Int {
         when (position) {
             0 -> return StatusIconType.UNCLICKABLE.value
             1 -> return StatusIconType.BATTERY.value
             2 -> return StatusIconType.WIFI.value
-            3-> return StatusIconType.SELF_DRIVE.value
+            3 -> return StatusIconType.SELF_DRIVE.value
+            4 -> return StatusIconType.GEARBOX.value
         }
         return 0
     }
@@ -38,9 +39,13 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_wifi, parent, false)
                 WifiDriveStatusViewHolder(itemView)
             }
-            else ->{
+            StatusIconType.SELF_DRIVE.value -> {
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_self_drive, parent, false)
                 SelfDriveStatusViewHolder(itemView)
+            }
+            else -> {
+                itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_gear, parent, false)
+                GearboxDriveStatusViewHolder(itemView)
             }
         }
     }
@@ -50,7 +55,8 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
             StatusIconType.UNCLICKABLE.value -> (holder as DriveStatusViewHolder).bind(position)
             StatusIconType.BATTERY.value -> (holder as BatteryDriveStatusViewHolder).bind(position)
             StatusIconType.WIFI.value -> (holder as WifiDriveStatusViewHolder).bind(position)
-            StatusIconType.SELF_DRIVE.value->(holder as SelfDriveStatusViewHolder).bind(position)
+            StatusIconType.SELF_DRIVE.value -> (holder as SelfDriveStatusViewHolder).bind(position)
+            StatusIconType.GEARBOX.value -> (holder as GearboxDriveStatusViewHolder).bind(position)
         }
     }
 
@@ -66,8 +72,8 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
         fun bind(position: Int) {
             tvField.text = titles[position]
             when (position) {
-                0 -> tvValue.text = String.format("%.1f m/s", values[position])
-                1 -> tvValue.text = String.format("%.1f m", values[position])
+                0 -> tvValue.text = String.format("%d m/s", values[position])
+                1 -> tvValue.text = String.format("%d m", values[position])
             }
             ivIcon.setImageResource(icons.getResourceId(position, -1))
         }
@@ -78,7 +84,7 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
         private val ivIcon: BatteryIconView = view.findViewById(R.id.icon)
 
         fun bind(position: Int) {
-            tvValue.text = String.format("%.1fV", values[position])
+            tvValue.text = String.format("%dV", values[position])
             ivIcon.updateView(values[position])
         }
     }
@@ -97,6 +103,18 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
 
     private inner class SelfDriveStatusViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
         private val ivIcon: SelfDriveIconView = view.findViewById(R.id.icon)
+
+        init {
+            ivIcon.iconClickListener = context as MainActivity
+        }
+
+        fun bind(position: Int) {
+            ivIcon.updateView(values[position])
+        }
+    }
+
+    private inner class GearboxDriveStatusViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
+        private val ivIcon: GearboxIconView = view.findViewById(R.id.icon)
 
         init {
             ivIcon.iconClickListener = context as MainActivity

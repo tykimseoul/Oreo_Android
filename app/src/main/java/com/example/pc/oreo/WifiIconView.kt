@@ -13,18 +13,18 @@ class WifiIconView : StatusIconView {
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     override fun onClick(v: View) {
-        updateView(WIFI_STATE_PENDING.toDouble())
+        updateView(WIFI_STATE_PENDING)
         iconClickListener.onIconClick(StatusIconType.WIFI)
     }
 
-    override fun updateView(value: Double) {
-        when (value.toInt()) {
+    override fun updateView(value: Int) {
+        when (value) {
             WIFI_STATE_PENDING -> {
                 setAnimation(statuses[StatusIconType.WIFI.value][WIFI_STATE_PENDING])
                 repeatCount = ValueAnimator.INFINITE
                 playAnimation()
             }
-            else -> setImageResource(statuses[StatusIconType.WIFI.value][value.toInt()])
+            else -> setImageResource(statuses[StatusIconType.WIFI.value][value])
         }
     }
 

@@ -32,11 +32,11 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     private var wifiManager: WifiManager? = null
     private var wifiScanResults: List<ScanResult>? = null
     private val connectionReceiver = ConnectionReceiver()
-    private val oreo = Oreo()
+    private val oreo: Oreo by lazy { Oreo() }
     private var driveStatusAdapter: DriveStatusAdapter? = null
     private lateinit var driveFields: Array<String>
     private lateinit var driveIcons: TypedArray
-    private val driveValues = DoubleArray(10)
+    private val driveValues = IntArray(10)
     private val currentFrame = ByteArray(20480)
     private var chunkOffset = 0
     private var streamPaused = false
@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
 
         driveFields = resources.getStringArray(R.array.drive_status_fields)
         driveIcons = resources.obtainTypedArray(R.array.drive_status_icons)
+        driveValues[StatusIconType.GEARBOX.value] = 1
         driveStatusAdapter = DriveStatusAdapter(this, driveFields, driveIcons, driveValues)
         val driveLayoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.HORIZONTAL, false)
         driveStatusRecyclerView.layoutManager = driveLayoutManager
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION)
         registerReceiver(connectionReceiver, intentFilter)
         enableWifi()
+        oreo.startControlStream()
     }
 
     private fun updateDriveIcons(changes: BooleanArray?) {
@@ -148,15 +150,15 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         when (connection) {
             WifiIconView.WIFI_STATE_CONNECTED -> {
                 oreo.setWifiConnection(true)
-                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_CONNECTED.toDouble()
+                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_CONNECTED
             }
             WifiIconView.WIFI_STATE_DISCONNECTED -> {
                 oreo.setWifiConnection(false)
-                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_DISCONNECTED.toDouble()
+                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_DISCONNECTED
             }
             WifiIconView.WIFI_STATE_PENDING -> {
                 oreo.setWifiConnection(false)
-                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_PENDING.toDouble()
+                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_PENDING
             }
         }
     }
@@ -188,14 +190,14 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
 
     override fun onBatteryStateUpdate(voltage: Double, amperage: Int) {
         runOnUiThread {
-            driveValues[StatusIconType.BATTERY.value] = voltage
+            driveValues[StatusIconType.BATTERY.value] = voltage.toInt()
             driveStatusAdapter!!.notifyItemChanged(2)
         }
     }
 
     override fun onMovementUpdate(velocity: Double) {
         runOnUiThread {
-            driveValues[0] = velocity
+            driveValues[0] = velocity.toInt()
             driveStatusAdapter!!.notifyItemRangeChanged(0, 1)
         }
     }
@@ -228,15 +230,21 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
             StatusIconType.WIFI -> enableWifi()
             StatusIconType.BATTERY -> {
             }
+            StatusIconType.GEARBOX -> {
+                oreo.gear.shift()
+                oreo.controlCommand.reset()
+            }
+            StatusIconType.UNCLICKABLE -> TODO()
+            StatusIconType.SELF_DRIVE -> TODO()
         }
     }
 
     override fun onAccelerate(power: Float) {
-
+        oreo.controlCommand.speedPercentage = power * oreo.gear.type.value
     }
 
     override fun onSteer(angle: Float) {
-
+        oreo.controlCommand.steerPercentage = angle
     }
 
     private fun requestAllPermissions() {
@@ -260,10 +268,6 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
                 }
             }
         }
-    }
-
-    private fun dispatchControls(command: ControlCommand) {
-
     }
 
     private inner class ConnectionReceiver : BroadcastReceiver() {
