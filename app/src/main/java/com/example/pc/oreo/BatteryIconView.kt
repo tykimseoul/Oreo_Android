@@ -9,10 +9,10 @@ class BatteryIconView : StatusIconView {
 
     override fun updateView(value: Int) {
         when {
-            value > 10 -> setImageResource(statuses[StatusIconType.BATTERY.value][3])
-            value > 7 -> setImageResource(statuses[StatusIconType.BATTERY.value][2])
-            value > 3.5 -> setImageResource(statuses[StatusIconType.BATTERY.value][1])
-            else -> setImageResource(statuses[StatusIconType.BATTERY.value][0])
+            value > 10 -> setImageResource(statuses[StatusIconType.BATTERY.index][3])
+            value > 7 -> setImageResource(statuses[StatusIconType.BATTERY.index][2])
+            value > 3.5 -> setImageResource(statuses[StatusIconType.BATTERY.index][1])
+            else -> setImageResource(statuses[StatusIconType.BATTERY.index][0])
         }
     }
 }

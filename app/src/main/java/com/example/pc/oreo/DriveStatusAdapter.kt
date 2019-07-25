@@ -15,11 +15,11 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
 
     override fun getItemViewType(position: Int): Int {
         when (position) {
-            0 -> return StatusIconType.UNCLICKABLE.value
-            1 -> return StatusIconType.BATTERY.value
-            2 -> return StatusIconType.WIFI.value
-            3 -> return StatusIconType.SELF_DRIVE.value
-            4 -> return StatusIconType.GEARBOX.value
+            0 -> return StatusIconType.UNCLICKABLE.index
+            1 -> return StatusIconType.BATTERY.index
+            2 -> return StatusIconType.WIFI.index
+            3 -> return StatusIconType.SELF_DRIVE.index
+            4 -> return StatusIconType.GEARBOX.index
         }
         return 0
     }
@@ -27,19 +27,19 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val itemView: View
         return when (viewType) {
-            StatusIconType.UNCLICKABLE.value -> {
+            StatusIconType.UNCLICKABLE.index -> {
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status, parent, false)
                 DriveStatusViewHolder(itemView)
             }
-            StatusIconType.BATTERY.value -> {
+            StatusIconType.BATTERY.index -> {
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_battery, parent, false)
                 BatteryDriveStatusViewHolder(itemView)
             }
-            StatusIconType.WIFI.value -> {
+            StatusIconType.WIFI.index -> {
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_wifi, parent, false)
                 WifiDriveStatusViewHolder(itemView)
             }
-            StatusIconType.SELF_DRIVE.value -> {
+            StatusIconType.SELF_DRIVE.index -> {
                 itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_drive_status_self_drive, parent, false)
                 SelfDriveStatusViewHolder(itemView)
             }
@@ -52,11 +52,11 @@ class DriveStatusAdapter(private val context: Context, private val titles: Array
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            StatusIconType.UNCLICKABLE.value -> (holder as DriveStatusViewHolder).bind(position)
-            StatusIconType.BATTERY.value -> (holder as BatteryDriveStatusViewHolder).bind(position)
-            StatusIconType.WIFI.value -> (holder as WifiDriveStatusViewHolder).bind(position)
-            StatusIconType.SELF_DRIVE.value -> (holder as SelfDriveStatusViewHolder).bind(position)
-            StatusIconType.GEARBOX.value -> (holder as GearboxDriveStatusViewHolder).bind(position)
+            StatusIconType.UNCLICKABLE.index -> (holder as DriveStatusViewHolder).bind(position)
+            StatusIconType.BATTERY.index -> (holder as BatteryDriveStatusViewHolder).bind(position)
+            StatusIconType.WIFI.index -> (holder as WifiDriveStatusViewHolder).bind(position)
+            StatusIconType.SELF_DRIVE.index -> (holder as SelfDriveStatusViewHolder).bind(position)
+            StatusIconType.GEARBOX.index -> (holder as GearboxDriveStatusViewHolder).bind(position)
         }
     }
 

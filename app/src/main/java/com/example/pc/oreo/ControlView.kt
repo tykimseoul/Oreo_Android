@@ -65,7 +65,6 @@ class ControlView : View {
                 performClick()
             }
         }
-        Log.e("touch", "[${ids.joinToString()}], [${types.joinToString()}]")
         return true
     }
 

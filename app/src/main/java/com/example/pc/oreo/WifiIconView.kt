@@ -20,11 +20,11 @@ class WifiIconView : StatusIconView {
     override fun updateView(value: Int) {
         when (value) {
             WIFI_STATE_PENDING -> {
-                setAnimation(statuses[StatusIconType.WIFI.value][WIFI_STATE_PENDING])
+                setAnimation(statuses[StatusIconType.WIFI.index][WIFI_STATE_PENDING])
                 repeatCount = ValueAnimator.INFINITE
                 playAnimation()
             }
-            else -> setImageResource(statuses[StatusIconType.WIFI.value][value])
+            else -> setImageResource(statuses[StatusIconType.WIFI.index][value])
         }
     }
 

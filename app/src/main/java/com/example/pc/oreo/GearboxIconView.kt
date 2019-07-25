@@ -14,10 +14,10 @@ class GearboxIconView : StatusIconView {
     override fun onClick(v: View) {
         iconClickListener.onIconClick(StatusIconType.GEARBOX)
         gear.shift()
-        updateView(gear.type.value + 1)
+        updateView(gear.type.index)
     }
 
     override fun updateView(value: Int) {
-        setImageResource(statuses[StatusIconType.GEARBOX.value][value])
+        setImageResource(statuses[StatusIconType.GEARBOX.index][value])
     }
 }

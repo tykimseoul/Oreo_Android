@@ -78,9 +78,9 @@ class Oreo : WifiConnector.OreoCommandListener {
         }
     }
 
-    enum class GearType constructor(val value: Int) {
-        PARK(0),
-        DRIVE(1),
-        REVERSE(-1)
+    enum class GearType constructor(val value: Int, val index: Int) {
+        PARK(0, 1),
+        DRIVE(1, 2),
+        REVERSE(-1, 0)
     }
 }

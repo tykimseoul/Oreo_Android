@@ -19,7 +19,6 @@ import android.view.View
 import android.view.WindowManager
 import com.example.pc.oreo.StatusIconView.StatusIconType
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiConnector.OreoWifiDataChangeListener, StatusIconView.IconClickListener, ControlView.ControlViewListener {
@@ -50,7 +49,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
 
         driveFields = resources.getStringArray(R.array.drive_status_fields)
         driveIcons = resources.obtainTypedArray(R.array.drive_status_icons)
-        driveValues[StatusIconType.GEARBOX.value] = 1
+        driveValues[StatusIconType.GEARBOX.index] = Oreo.GearType.PARK.index
         driveStatusAdapter = DriveStatusAdapter(this, driveFields, driveIcons, driveValues)
         val driveLayoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.HORIZONTAL, false)
         driveStatusRecyclerView.layoutManager = driveLayoutManager
@@ -68,19 +67,6 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         oreo.startControlStream()
     }
 
-    private fun updateDriveIcons(changes: BooleanArray?) {
-        runOnUiThread {
-            if (changes != null) {
-                for (i in changes.indices) {
-                    if (changes[i]) {
-                        driveStatusAdapter!!.notifyItemChanged(i)
-                    }
-                }
-            }
-            driveStatusAdapter!!.notifyItemRangeChanged(StatusIconType.WIFI.value, 2)
-        }
-    }
-
     private fun hideStatusBar() {
         val uiOptions = (View.SYSTEM_UI_FLAG_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -90,12 +76,10 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     }
 
     private fun enableWifi() {
-        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        if (wifiManager != null && !wifiManager!!.isWifiEnabled) {
-            wifiManager!!.isWifiEnabled = true
-        }
-        if (wifiManager != null) {
-            wifiManager!!.startScan()
+        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+        wifiManager?.apply {
+            isWifiEnabled = true
+            startScan()
         }
     }
 
@@ -150,15 +134,15 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         when (connection) {
             WifiIconView.WIFI_STATE_CONNECTED -> {
                 oreo.setWifiConnection(true)
-                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_CONNECTED
+                driveValues[StatusIconType.WIFI.index] = WifiIconView.WIFI_STATE_CONNECTED
             }
             WifiIconView.WIFI_STATE_DISCONNECTED -> {
                 oreo.setWifiConnection(false)
-                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_DISCONNECTED
+                driveValues[StatusIconType.WIFI.index] = WifiIconView.WIFI_STATE_DISCONNECTED
             }
             WifiIconView.WIFI_STATE_PENDING -> {
                 oreo.setWifiConnection(false)
-                driveValues[StatusIconType.WIFI.value] = WifiIconView.WIFI_STATE_PENDING
+                driveValues[StatusIconType.WIFI.index] = WifiIconView.WIFI_STATE_PENDING
             }
         }
     }
@@ -185,20 +169,22 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     }
 
     override fun onConnectionChanged() {
-        updateDriveIcons(null)
+        runOnUiThread {
+            driveStatusAdapter?.notifyItemRangeChanged(StatusIconType.WIFI.index, 1)
+        }
     }
 
     override fun onBatteryStateUpdate(voltage: Double, amperage: Int) {
         runOnUiThread {
-            driveValues[StatusIconType.BATTERY.value] = voltage.toInt()
-            driveStatusAdapter!!.notifyItemChanged(2)
+            driveValues[StatusIconType.BATTERY.index] = voltage.toInt()
+            driveStatusAdapter?.notifyItemChanged(2)
         }
     }
 
     override fun onMovementUpdate(velocity: Double) {
         runOnUiThread {
             driveValues[0] = velocity.toInt()
-            driveStatusAdapter!!.notifyItemRangeChanged(0, 1)
+            driveStatusAdapter?.notifyItemRangeChanged(0, 1)
         }
     }
 
@@ -228,44 +214,47 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     override fun onIconClick(type: StatusIconType) {
         when (type) {
             StatusIconType.WIFI -> enableWifi()
-            StatusIconType.BATTERY -> {
-            }
             StatusIconType.GEARBOX -> {
                 oreo.gear.shift()
                 oreo.controlCommand.reset()
             }
-            StatusIconType.UNCLICKABLE -> TODO()
-            StatusIconType.SELF_DRIVE -> TODO()
+            StatusIconType.UNCLICKABLE, StatusIconType.BATTERY -> {
+            }
+            StatusIconType.SELF_DRIVE -> {
+                oreo.controlCommand.selfDrive = !oreo.controlCommand.selfDrive
+                oreo.controlCommand.reset()
+                driveValues[StatusIconType.SELF_DRIVE.index] = (driveValues[StatusIconType.SELF_DRIVE.index] + 1) % 2
+                driveStatusAdapter?.notifyItemChanged(StatusIconType.SELF_DRIVE.index)
+            }
         }
     }
 
     override fun onAccelerate(power: Float) {
-        oreo.controlCommand.speedPercentage = power * oreo.gear.type.value
+        if (!oreo.controlCommand.selfDrive)
+            oreo.controlCommand.speedPercentage = power * oreo.gear.type.value
     }
 
     override fun onSteer(angle: Float) {
-        oreo.controlCommand.steerPercentage = angle
+        if (!oreo.controlCommand.selfDrive)
+            oreo.controlCommand.steerPercentage = angle
     }
 
     private fun requestAllPermissions() {
-        if (missingPermissions == null) {
-            requestPermissions(permissions, 87)
-        } else if (missingPermissions!!.size > 0) {
-            for (i in missingPermissions!!) {
-                requestPermissions(arrayOf(permissions[missingPermissions!![i]]), 0)
+        missingPermissions?.apply {
+            if(isNotEmpty()){
+                forEach { requestPermissions(arrayOf(permissions[it]), 0)  }
             }
+            return
         }
+        requestPermissions(permissions, 87)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             87 -> if (grantResults.isNotEmpty()) {
-                missingPermissions = ArrayList()
-                for (i in grantResults.indices) {
-                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                        missingPermissions!!.add(i)
-                    }
-                }
+                missingPermissions = grantResults.indices.filter {
+                    grantResults[it] != PackageManager.PERMISSION_GRANTED
+                }.toMutableList()
             }
         }
     }
@@ -274,8 +263,10 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action != null) {
                 when (intent.action) {
-                    WifiManager.SCAN_RESULTS_AVAILABLE_ACTION -> if (!oreo.isConnected && wifiManager != null) {
-                        wifiScanResults = wifiManager!!.scanResults
+                    WifiManager.SCAN_RESULTS_AVAILABLE_ACTION -> if (!oreo.isConnected) {
+                        wifiManager?.apply {
+                            wifiScanResults = scanResults
+                        }
                         connectTello()
                     }
                     WifiManager.NETWORK_STATE_CHANGED_ACTION -> {

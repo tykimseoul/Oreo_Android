@@ -5,23 +5,17 @@ import android.util.AttributeSet
 import android.view.View
 
 class SelfDriveIconView : StatusIconView {
-    private var selfDrive: Boolean = false
 
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     override fun onClick(v: View) {
-        updateView(0)
         iconClickListener.onIconClick(StatusIconType.SELF_DRIVE)
     }
 
     override fun updateView(value: Int) {
-        if (selfDrive)
-            setImageResource(statuses[StatusIconType.SELF_DRIVE.value][SELF_DRIVE_DISABLED])
-        else
-            setImageResource(statuses[StatusIconType.SELF_DRIVE.value][SELF_DRIVE_ACTIVATED])
-        selfDrive = !selfDrive
+            setImageResource(statuses[StatusIconType.SELF_DRIVE.index][value])
     }
 
     companion object {

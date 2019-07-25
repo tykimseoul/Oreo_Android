@@ -37,10 +37,10 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
     }
 
     open fun updateView(value: Int) {
-        setImageResource(statuses[type.value][value])
+        setImageResource(statuses[type.index][value])
     }
 
-    enum class StatusIconType constructor(val value: Int) {
+    enum class StatusIconType constructor(val index: Int) {
         UNCLICKABLE(0),
         BATTERY(1),
         WIFI(2),
