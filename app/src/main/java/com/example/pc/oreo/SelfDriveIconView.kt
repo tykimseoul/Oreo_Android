@@ -15,7 +15,7 @@ class SelfDriveIconView : StatusIconView {
     }
 
     override fun updateView(value: Int) {
-            setImageResource(statuses[StatusIconType.SELF_DRIVE.index][value])
+        setImageResource(statuses[StatusIconType.SELF_DRIVE.index][value])
     }
 
     companion object {

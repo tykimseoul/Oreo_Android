@@ -3,23 +3,24 @@ package com.example.pc.oreo
 import android.os.Parcel
 import android.os.Parcelable
 import com.beust.klaxon.Json
+import com.example.pc.oreo.Oreo.DriveMode
 
 data class ControlCommand(
         @Json(name = "selfDrive")
-        var selfDrive: Boolean = false,
+        var selfDrive: DriveMode = DriveMode.MANUAL,
         @Json(name = "steer")
         var steerPercentage: Float = 0.0f,
         @Json(name = "speed")
         var speedPercentage: Float = 0.0f) : Parcelable {
 
     constructor(parcel: Parcel) : this() {
-        selfDrive = parcel.readBoolean()
+        selfDrive = parcel.readMode()
         steerPercentage = parcel.readFloat()
         speedPercentage = parcel.readFloat()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeBoolean(selfDrive)
+        parcel.writeMode(selfDrive)
         parcel.writeFloat(steerPercentage)
         parcel.writeFloat(speedPercentage)
     }
@@ -43,11 +44,11 @@ data class ControlCommand(
         }
     }
 
-    private fun Parcel.writeBoolean(boolean: Boolean) {
-        writeByte(if (boolean) 1.toByte() else 0.toByte())
+    private fun Parcel.writeMode(mode: DriveMode) {
+        writeInt(mode.value)
     }
 
-    private fun Parcel.readBoolean():Boolean {
-        return readByte() != 0.toByte()
+    private fun Parcel.readMode(): DriveMode {
+        return DriveMode.values()[readInt()]
     }
 }

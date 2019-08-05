@@ -83,4 +83,16 @@ class Oreo : WifiConnector.OreoCommandListener {
         DRIVE(1, 2),
         REVERSE(-1, 0)
     }
+
+    enum class DriveMode constructor(val value: Int) {
+        MANUAL(0),
+        TRAIN(1),
+        AUTONOMOUS(2);
+
+        companion object {
+            fun shiftFrom(mode: DriveMode): DriveMode {
+                return values()[(mode.value + 1) % values().size]
+            }
+        }
+    }
 }

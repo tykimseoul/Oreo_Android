@@ -221,28 +221,28 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
             StatusIconType.UNCLICKABLE, StatusIconType.BATTERY -> {
             }
             StatusIconType.SELF_DRIVE -> {
-                oreo.controlCommand.selfDrive = !oreo.controlCommand.selfDrive
+                oreo.controlCommand.selfDrive = Oreo.DriveMode.shiftFrom(oreo.controlCommand.selfDrive)
                 oreo.controlCommand.reset()
-                driveValues[StatusIconType.SELF_DRIVE.index] = (driveValues[StatusIconType.SELF_DRIVE.index] + 1) % 2
+                driveValues[StatusIconType.SELF_DRIVE.index] = (driveValues[StatusIconType.SELF_DRIVE.index] + 1) % Oreo.DriveMode.values().size
                 driveStatusAdapter?.notifyItemChanged(StatusIconType.SELF_DRIVE.index)
             }
         }
     }
 
     override fun onAccelerate(power: Float) {
-        if (!oreo.controlCommand.selfDrive)
+        if (oreo.controlCommand.selfDrive != Oreo.DriveMode.AUTONOMOUS)
             oreo.controlCommand.speedPercentage = power * oreo.gear.type.value
     }
 
     override fun onSteer(angle: Float) {
-        if (!oreo.controlCommand.selfDrive)
+        if (oreo.controlCommand.selfDrive != Oreo.DriveMode.AUTONOMOUS)
             oreo.controlCommand.steerPercentage = angle
     }
 
     private fun requestAllPermissions() {
         missingPermissions?.apply {
-            if(isNotEmpty()){
-                forEach { requestPermissions(arrayOf(permissions[it]), 0)  }
+            if (isNotEmpty()) {
+                forEach { requestPermissions(arrayOf(permissions[it]), 0) }
             }
             return
         }

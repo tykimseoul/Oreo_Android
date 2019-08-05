@@ -3,12 +3,8 @@ package com.example.pc.oreo
 import android.util.Log
 
 class DriveData {
-    enum class DriveMode constructor(val value: Int) {
-        MANUAL(0),
-        AUTONOMOUS(1)
-    }
 
-    var driveMode: DriveMode = DriveMode.MANUAL
+    var driveMode: Oreo.DriveMode = Oreo.DriveMode.MANUAL
     var verticalSpeed: Int = 0
     var speed: Double = 0.0
     var flyTime: Int = 0
