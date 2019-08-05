@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     private val driveValues = IntArray(10)
     private val currentFrame = ByteArray(20480)
     private var chunkOffset = 0
-    private var streamPaused = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -150,11 +149,9 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     public override fun onResume() {
         super.onResume()
         hideStatusBar()
-        streamPaused = false
     }
 
     override fun onPause() {
-        streamPaused = true
         super.onPause()
     }
 
@@ -200,10 +197,8 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     override fun onVideoDataReceived(videoBuffer: ByteArray, size: Int) {
         if (videoBuffer[2].toInt() == 0 && videoBuffer[3].toInt() == 0 && videoBuffer[4].toInt() == 0 && videoBuffer[5].toInt() == 1) { //if nal
             if (chunkOffset > 0) {
-                if (!streamPaused) {
-                    Log.e("offset", chunkOffset.toString() + "")
-//                    decoderView!!.decode(Arrays.copyOfRange(currentFrame, 0, chunkOffset))
-                }
+                Log.e("offset", chunkOffset.toString() + "")
+//              decoderView!!.decode(Arrays.copyOfRange(currentFrame, 0, chunkOffset))
                 chunkOffset = 0
             }
         }
