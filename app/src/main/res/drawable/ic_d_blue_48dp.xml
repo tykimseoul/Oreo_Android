@@ -1,0 +1,10 @@
+<vector android:height="48dp"
+    android:tint="@color/colorBluetoothOn"
+    android:viewportHeight="50.0"
+    android:viewportWidth="50.0"
+    android:width="48dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <path
+        android:fillColor="@color/white"
+        android:pathData="m22.964844,3l-15.964844,0c-0.554688,0 -1,0.449219 -1,1l0,42c0,0.550781 0.445312,1 1,1l15.964844,0c13.367187,0 21.035156,-8.089844 21.035156,-22.1875c0,-13.660156 -7.863281,-21.8125 -21.035156,-21.8125zm-0.839844,37l-7.125,0l0,-30l7.125,0c8.097656,0 12.875,5.445312 12.875,14.925781c0,9.6875 -4.664062,15.074219 -12.875,15.074219zm0,0"/>
+</vector>
