@@ -17,11 +17,14 @@ import android.support.v7.widget.SimpleItemAnimator
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import com.beust.klaxon.Klaxon
 import com.example.pc.oreo.StatusIconView.StatusIconType
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiConnector.OreoWifiDataChangeListener, StatusIconView.IconClickListener, ControlView.ControlViewListener {
+class MainActivity : AppCompatActivity(), WifiConnector.OreoWifiDataChangeListener, StatusIconView.IconClickListener, ControlView.ControlViewListener {
+
+
     private val permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_WIFI_STATE,
             Manifest.permission.CHANGE_WIFI_STATE,
@@ -42,8 +45,7 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        oreo.oreoStatusChangeListener = this
-        oreo.wifiConnector.setWifiDataChangeListener(this)
+        oreo.wifiConnector.wifiDataChangeListener = this
         requestAllPermissions()
 
         driveFields = resources.getStringArray(R.array.drive_status_fields)
@@ -144,6 +146,9 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
                 driveValues[StatusIconType.WIFI.index] = WifiIconView.WIFI_STATE_PENDING
             }
         }
+        runOnUiThread {
+            driveStatusAdapter?.notifyItemChanged(StatusIconType.WIFI.index)
+        }
     }
 
     public override fun onResume() {
@@ -165,32 +170,14 @@ class MainActivity : AppCompatActivity(), Oreo.OreoStatusChangeListener, WifiCon
         unregisterReceiver(connectionReceiver)
     }
 
-    override fun onConnectionChanged() {
-        runOnUiThread {
-            driveStatusAdapter?.notifyItemRangeChanged(StatusIconType.WIFI.index, 1)
-        }
-    }
-
-    override fun onBatteryStateUpdate(voltage: Double, amperage: Int) {
-        runOnUiThread {
-            driveValues[StatusIconType.BATTERY.index] = voltage.toInt()
-            driveStatusAdapter?.notifyItemChanged(2)
-        }
-    }
-
-    override fun onMovementUpdate(velocity: Double) {
-        runOnUiThread {
-            driveValues[0] = velocity.toInt()
-            driveStatusAdapter?.notifyItemRangeChanged(0, 1)
-        }
-    }
-
-    override fun onWifiCommandReceived(command: WifiCommand) {
-        when (command.type) {
-            WifiCommand.WifiCommandCode.APPROVE_CONNECTION -> updateWifiConnection(WifiIconView.WIFI_STATE_CONNECTED)
-            WifiCommand.WifiCommandCode.FRAME_DATA -> {
+    override fun onDriveDataReceived(jsonData: String) {
+        Klaxon().parse<DriveData>(jsonData)?.apply {
+            driveValues[StatusIconType.BATTERY.index] = (voltage.times(10)).toInt()
+            driveValues[0] = (speed * 10).toInt()
+            runOnUiThread {
+                driveStatusAdapter?.notifyItemChanged(StatusIconType.BATTERY.index)
+                driveStatusAdapter?.notifyItemChanged(StatusIconType.UNCLICKABLE.index)
             }
-            WifiCommand.WifiCommandCode.DRIVE_DATA -> oreo.updateDriveData(command.driveDataPayload)
         }
     }
 

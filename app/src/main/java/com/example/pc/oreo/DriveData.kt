@@ -1,56 +1,37 @@
 package com.example.pc.oreo
 
-import android.util.Log
+import com.beust.klaxon.Json
 
-class DriveData {
-
-    var driveMode: Oreo.DriveMode = Oreo.DriveMode.MANUAL
-    var verticalSpeed: Int = 0
-    var speed: Double = 0.0
-    var flyTime: Int = 0
-
+data class DriveData(
+        @Json(name = "power")
+        var power: Int = 0,
+        @Json(name = "voltage")
+        var voltage: Double = 0.0
+) {
+    @Json(ignored = true)
+    val speed: Double
+        //TODO: find real formula
+        get() = power * voltage * 1400
+    @Json(ignored = true)
     var gpsFixed: Boolean = false
+    @Json(ignored = true)
     var satelliteCount: Int = 0
+    @Json(ignored = true)
     var longitude: Double = 0.0
+    @Json(ignored = true)
     var latitude: Double = 0.0
+    @Json(ignored = true)
     var groundCourse: Float = 0.0f
+    @Json(ignored = true)
     var distance: Int = 0
+    @Json(ignored = true)
     var homeDirection: Int = 0
 
-    var flying: Boolean = false
-
-    var batteryVoltage: Double = 0.0
-    var batteryAmperage: Int = 0
-    var batteryAdequate: Boolean = false
+    @Json(ignored = true)
+    val batteryAdequate: Boolean
         get() {
-            return batteryVoltage > 7
+            return voltage > 7
         }
+    @Json(ignored = true)
     var wifiConnected: Boolean = false
-    var bluetoothConnected: Boolean = false
-
-    fun setData(payload: IntArray) {
-        var ints = ""
-        for (b in payload) {
-            ints += String.format(" %d", b)
-        }
-        Log.e("ints", ints)
-        var index = 0
-        verticalSpeed = payload[index + 1]
-
-        index += 2
-        gpsFixed = payload[index] == 1
-        satelliteCount = payload[index + 1]
-        latitude = payload[index + 2] / 10000000.0
-        longitude = payload[index + 3] / 10000000.0
-        speed = payload[index + 5] / 100.0
-        groundCourse = payload[index + 6] / 10.0f
-
-        index += 7
-        batteryVoltage = payload[index] / 10.0
-        batteryAmperage = payload[index + 3]
-
-        index += 4
-        distance = payload[index]
-        homeDirection = payload[index + 1]
-    }
 }

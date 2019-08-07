@@ -1,7 +1,6 @@
 package com.example.pc.oreo
 
 import android.util.Log
-import com.example.pc.oreo.WifiCommand.WifiCommandCode
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -12,13 +11,14 @@ import java.io.IOException
 import java.net.*
 import java.nio.channels.DatagramChannel
 import java.util.concurrent.TimeUnit
+import kotlin.text.Charsets.UTF_8
 
 class WifiConnector(ad: String, serverPort: Int) {
     var datagramSocket: DatagramSocket? = null
         private set
     private var serverAddress: InetAddress? = null
     private var port: Int = 0
-    private var wifiDataChangeListener: OreoWifiDataChangeListener? = null
+    var wifiDataChangeListener: OreoWifiDataChangeListener? = null
     private val compositeDisposable = CompositeDisposable()
     lateinit var oreo: OreoCommandListener
 
@@ -43,7 +43,7 @@ class WifiConnector(ad: String, serverPort: Int) {
 
     fun connect() {
         compositeDisposable.add(
-                Observable.create(ObservableOnSubscribe<Int> { emitter ->
+                Observable.create(ObservableOnSubscribe<DatagramPacket> { emitter ->
                     if (emitter.isDisposed) {
                         return@ObservableOnSubscribe
                     }
@@ -57,13 +57,7 @@ class WifiConnector(ad: String, serverPort: Int) {
                         val pk = DatagramPacket(buffer, buffer.size)
                         datagramSocket?.soTimeout = 100
                         datagramSocket?.receive(pk)
-                        val replyCode = pk.data[1].toInt()
-                        if (replyCode == WifiCommandCode.APPROVE_CONNECTION.value.toInt()) {
-                            emitter.onNext(replyCode)
-                            emitter.onComplete()
-                        } else {
-                            emitter.onError(Throwable())
-                        }
+                        emitter.onNext(pk)
                     } catch (e: IOException) {
                         if (!emitter.isDisposed) {
                             emitter.onError(e)
@@ -71,10 +65,10 @@ class WifiConnector(ad: String, serverPort: Int) {
                     }
                 }).subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableObserver<Int>() {
-                            override fun onNext(replyCode: Int) {
-                                Log.e("connection", replyCode.toString())
-                                wifiDataChangeListener!!.onWifiCommandReceived(WifiCommand(replyCode))
+                        .subscribeWith(object : DisposableObserver<DatagramPacket>() {
+                            override fun onNext(datagramPacket: DatagramPacket) {
+                                Log.e("connection", "")
+                                wifiDataChangeListener?.onDriveDataReceived(datagramPacket.data.toString(UTF_8))
                             }
 
                             override fun onError(e: Throwable) {
@@ -128,14 +122,14 @@ class WifiConnector(ad: String, serverPort: Int) {
                 Flowable.create(FlowableOnSubscribe<DatagramPacket> { emitter ->
                     val buffer = ByteArray(1024)
                     val packet = DatagramPacket(buffer, buffer.size)
-                    datagramSocket!!.soTimeout = 150
+                    datagramSocket?.soTimeout = 150
                     while (true) {
                         if (emitter.isCancelled) {
                             break
                         }
                         try {
-                            if (!datagramSocket!!.isClosed) {
-                                datagramSocket!!.receive(packet)
+                            if (!datagramSocket?.isClosed!!) {
+                                datagramSocket?.receive(packet)
                                 emitter.onNext(packet)
                             } else {
                                 Log.e("socket closed", "")
@@ -149,7 +143,6 @@ class WifiConnector(ad: String, serverPort: Int) {
                             }
                             break
                         }
-
                     }
                 }, BackpressureStrategy.LATEST)
                         .subscribeOn(Schedulers.io())
@@ -158,9 +151,7 @@ class WifiConnector(ad: String, serverPort: Int) {
                         .subscribeWith(object : DisposableSubscriber<DatagramPacket>() {
                             override fun onNext(datagramPacket: DatagramPacket) {
                                 Log.e("receive ", datagramPacket.data.size.toString() + "")
-                                val command = WifiCommand(datagramPacket.data)
-                                wifiDataChangeListener!!.onWifiCommandReceived(command)
-                                Log.e("receiveNext", command.type.toString() + "")
+                                wifiDataChangeListener?.onDriveDataReceived(datagramPacket.data.toString(UTF_8))
                             }
 
                             override fun onError(e: Throwable) {
@@ -191,12 +182,8 @@ class WifiConnector(ad: String, serverPort: Int) {
         }
     }
 
-    fun setWifiDataChangeListener(wifiDataChangeListener: OreoWifiDataChangeListener) {
-        this.wifiDataChangeListener = wifiDataChangeListener
-    }
-
     interface OreoWifiDataChangeListener {
-        fun onWifiCommandReceived(command: WifiCommand)
+        fun onDriveDataReceived(jsonData: String)
 
         fun onVideoDataReceived(videoBuffer: ByteArray, size: Int)
     }
