@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.content.res.TypedArray
 import android.net.NetworkInfo
 import android.net.wifi.ScanResult
+import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -31,8 +32,7 @@ class MainActivity : AppCompatActivity(), WifiConnector.OreoWifiDataChangeListen
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.INTERNET)
     private var missingPermissions: MutableList<Int>? = null
-    private var wifiManager: WifiManager? = null
-    private var wifiScanResults: List<ScanResult>? = null
+    private val wifiManager: WifiManager by lazy { getSystemService(Context.WIFI_SERVICE) as WifiManager }
     private val connectionReceiver = ConnectionReceiver()
     private val oreo: Oreo by lazy { Oreo() }
     private var driveStatusAdapter: DriveStatusAdapter? = null
@@ -77,58 +77,39 @@ class MainActivity : AppCompatActivity(), WifiConnector.OreoWifiDataChangeListen
     }
 
     private fun enableWifi() {
-        wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-        wifiManager?.apply {
+        wifiManager.apply {
             isWifiEnabled = true
             startScan()
         }
     }
 
-    private fun connectTello() {
-        //        ScanResult scanResult = null;
-        //        for (ScanResult result : wifiScanResults) {
-        //            if (result.SSID.contains("TELLO")) {
-        //                scanResult = result;
-        //                Log.e("WIFI", result.SSID);
-        //                break;
-        //            }
-        //        }
-        //        if (scanResult == null) {
-        //            Log.e("WIFI", "null result");
-        //            updateWifiConnection(WifiIconView.WIFI_STATE_DISCONNECTED);
-        //            return;
-        //        }
-        //        WifiConfiguration wifiConfig = new WifiConfiguration();
-        //        wifiConfig.SSID = String.format("\"%s\"", scanResult.SSID);
-        //        wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-        //
-        //        try {
-        //            int netId = wifiManager.addNetwork(wifiConfig);
-        //            if (netId == -1) {
-        //                netId = getExistingNetworkId(wifiConfig.SSID);
-        //            }
-        //            wifiManager.disconnect();
-        //            wifiManager.enableNetwork(netId, true);
-        //            wifiManager.reconnect();
-        //            updateWifiConnection(WifiIconView.WIFI_STATE_CONNECTED);
-        //        } catch (Exception e) {
-        //            updateWifiConnection(WifiIconView.WIFI_STATE_DISCONNECTED);
-        //        }
-        oreo.connect()
-    }
+    private fun connectOreo(scanResults: List<ScanResult>) {
+        val oreoWifi: ScanResult? = scanResults.firstOrNull { it.SSID.contains("OREO") }
 
-    @Throws(Exception::class)
-    private fun getExistingNetworkId(SSID: String): Int {
-        val wifiManager = super.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val configuredNetworks = wifiManager.configuredNetworks
-        if (configuredNetworks != null) {
-            for (existingConfig in configuredNetworks) {
-                if (existingConfig.SSID == SSID) {
-                    return existingConfig.networkId
-                }
-            }
+        if (oreoWifi == null) {
+            Log.e("WIFI", "no oreo")
+            updateWifiConnection(WifiIconView.WIFI_STATE_DISCONNECTED)
+            return
         }
-        throw Exception()
+
+        WifiConfiguration().apply {
+            SSID = String.format("\"%s\"", oreoWifi.SSID)
+            allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE)
+
+            try {
+                var netId = wifiManager.addNetwork(this)
+                if (netId == -1) {
+                    netId = wifiManager.configuredNetworks.first { it.SSID == this.SSID }.networkId
+                }
+                wifiManager.disconnect()
+                wifiManager.enableNetwork(netId, true)
+                wifiManager.reconnect()
+                updateWifiConnection(WifiIconView.WIFI_STATE_CONNECTED)
+            } catch (e: Exception) {
+                updateWifiConnection(WifiIconView.WIFI_STATE_DISCONNECTED)
+            }
+            oreo.connect()
+        }
     }
 
     private fun updateWifiConnection(connection: Int) {
@@ -256,10 +237,9 @@ class MainActivity : AppCompatActivity(), WifiConnector.OreoWifiDataChangeListen
             if (intent.action != null) {
                 when (intent.action) {
                     WifiManager.SCAN_RESULTS_AVAILABLE_ACTION -> if (!oreo.isConnected) {
-                        wifiManager?.apply {
-                            wifiScanResults = scanResults
+                        wifiManager.apply {
+                            connectOreo(scanResults)
                         }
-                        connectTello()
                     }
                     WifiManager.NETWORK_STATE_CHANGED_ACTION -> {
                         val info = intent.getParcelableExtra<NetworkInfo>(WifiManager.EXTRA_NETWORK_INFO)
