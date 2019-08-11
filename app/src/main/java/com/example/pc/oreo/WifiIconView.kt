@@ -30,7 +30,6 @@ class WifiIconView : StatusIconView {
 
     companion object {
         const val WIFI_STATE_CONNECTED = 2
-        const val WIFI_STATE_WEAK = 1
         const val WIFI_STATE_DISCONNECTED = 0
         const val WIFI_STATE_PENDING = 3
     }

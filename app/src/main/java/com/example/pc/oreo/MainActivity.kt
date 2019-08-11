@@ -24,7 +24,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), WifiConnector.OreoWifiDataChangeListener, StatusIconView.IconClickListener, ControlView.ControlViewListener {
 
-
     private val permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_WIFI_STATE,
             Manifest.permission.CHANGE_WIFI_STATE,
@@ -254,8 +253,8 @@ class MainActivity : AppCompatActivity(), WifiConnector.OreoWifiDataChangeListen
                     WifiManager.NETWORK_STATE_CHANGED_ACTION -> {
                         val info = intent.getParcelableExtra<NetworkInfo>(WifiManager.EXTRA_NETWORK_INFO)
                         val wifiConnected = info.isConnected
-                        val telloConnected = info.extraInfo.contains("TELLO")
-                        if (wifiConnected && telloConnected) {
+                        val oreoConnected = info.extraInfo.contains("OREO")
+                        if (wifiConnected && oreoConnected) {
                             updateWifiConnection(WifiIconView.WIFI_STATE_CONNECTED)
                         } else if (info.isConnectedOrConnecting) {
                             updateWifiConnection(WifiIconView.WIFI_STATE_PENDING)

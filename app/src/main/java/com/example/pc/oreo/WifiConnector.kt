@@ -21,23 +21,20 @@ class WifiConnector(ad: String, serverPort: Int) {
     var wifiDataChangeListener: OreoWifiDataChangeListener? = null
     private val compositeDisposable = CompositeDisposable()
     lateinit var oreo: OreoCommandListener
+    private val bufferSize = 128
 
     init {
         try {
             serverAddress = InetAddress.getByName(ad)
             port = serverPort
-            datagramSocket = DatagramSocket()
-        } catch (e: SocketException) {
-            datagramSocket = null
         } catch (e: UnknownHostException) {
             serverAddress = null
         }
     }
 
     private fun formRequestPacket(): ByteArray {
-        val connectPacket = ByteArray(64)
-        connectPacket[0] = WifiCommand.WifiCommandCode.REQUEST_CONNECTION.length
-        connectPacket[1] = WifiCommand.WifiCommandCode.REQUEST_CONNECTION.value
+        val connectPacket = ByteArray(1)
+        connectPacket[0] = WifiCommandCode.REQUEST_CONNECTION.value
         return connectPacket
     }
 
@@ -48,16 +45,18 @@ class WifiConnector(ad: String, serverPort: Int) {
                         return@ObservableOnSubscribe
                     }
                     try {
-                        val channel = DatagramChannel.open()
-                        datagramSocket = channel.socket()
-                        datagramSocket?.connect(serverAddress, port)
-                        val connectPacket = formRequestPacket()
-                        sendWithException(connectPacket)
-                        val buffer = ByteArray(2048)
-                        val pk = DatagramPacket(buffer, buffer.size)
-                        datagramSocket?.soTimeout = 100
-                        datagramSocket?.receive(pk)
-                        emitter.onNext(pk)
+                        datagramSocket = DatagramChannel.open().socket()
+                        datagramSocket?.apply {
+                            connect(serverAddress,port)
+                            val connectPacket = formRequestPacket()
+                            val datagramPacket = DatagramPacket(connectPacket, connectPacket.size, serverAddress, port)
+                            send(datagramPacket)
+                            val buffer = ByteArray(bufferSize)
+                            val pk = DatagramPacket(buffer, buffer.size)
+                            soTimeout = 100
+                            receive(pk)
+                            emitter.onNext(pk)
+                        }
                     } catch (e: IOException) {
                         if (!emitter.isDisposed) {
                             emitter.onError(e)
@@ -120,7 +119,7 @@ class WifiConnector(ad: String, serverPort: Int) {
     private fun streamData() {
         compositeDisposable.add(
                 Flowable.create(FlowableOnSubscribe<DatagramPacket> { emitter ->
-                    val buffer = ByteArray(1024)
+                    val buffer = ByteArray(bufferSize)
                     val packet = DatagramPacket(buffer, buffer.size)
                     datagramSocket?.soTimeout = 150
                     while (true) {
@@ -167,19 +166,11 @@ class WifiConnector(ad: String, serverPort: Int) {
         )
     }
 
-    @Throws(IOException::class)
-    private fun sendWithException(message: ByteArray) {
-        val datagramPacket = DatagramPacket(message, message.size, serverAddress, port)
-        datagramSocket!!.send(datagramPacket)
-    }
-
     fun disconnect() {
         if (!compositeDisposable.isDisposed) {
             compositeDisposable.dispose()
         }
-        if (datagramSocket != null) {
-            datagramSocket!!.close()
-        }
+        datagramSocket?.close()
     }
 
     interface OreoWifiDataChangeListener {
@@ -190,5 +181,14 @@ class WifiConnector(ad: String, serverPort: Int) {
 
     interface OreoCommandListener {
         fun onNotifyCommandUpdate(): ByteArray
+    }
+
+    enum class WifiCommandCode constructor(val value: Byte) {
+        REQUEST_CONNECTION(100),
+        APPROVE_CONNECTION(101),
+        JOYSTICK_CONTROL(102),
+        REQUEST_STREAM(105),
+        FRAME_DATA(106),
+        DRIVE_DATA(107);
     }
 }

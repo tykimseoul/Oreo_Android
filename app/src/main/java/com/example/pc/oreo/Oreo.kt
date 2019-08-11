@@ -38,8 +38,6 @@ class Oreo : WifiConnector.OreoCommandListener {
     }
 
     class Gear(var type: GearType = GearType.PARK) {
-        val next: GearType by lazy { shift() }
-
         fun shift(): GearType {
             return when (type) {
                 GearType.PARK -> {

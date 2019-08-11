@@ -6,7 +6,7 @@ import android.view.View
 
 import com.airbnb.lottie.LottieAnimationView
 
-open class StatusIconView : LottieAnimationView, View.OnClickListener {
+abstract class StatusIconView : LottieAnimationView, View.OnClickListener {
     val statuses = arrayOf(intArrayOf(R.drawable.ic_speedometer_white_48dp),
             intArrayOf(R.drawable.ic_battery_20_white_48dp,
                     R.drawable.ic_battery_50_white_48dp,
@@ -23,7 +23,6 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
                     R.drawable.ic_p_white_48dp,
                     R.drawable.ic_d_blue_48dp))
     lateinit var iconClickListener: IconClickListener
-    var type: StatusIconType = StatusIconType.UNCLICKABLE
 
     constructor(context: Context) : super(context) {
         this.setOnClickListener(this)
@@ -33,13 +32,9 @@ open class StatusIconView : LottieAnimationView, View.OnClickListener {
         this.setOnClickListener(this)
     }
 
-    override fun onClick(v: View) {
+    abstract override fun onClick(v: View)
 
-    }
-
-    open fun updateView(value: Int) {
-        setImageResource(statuses[type.index][value])
-    }
+    abstract fun updateView(value: Int)
 
     enum class StatusIconType constructor(val index: Int) {
         UNCLICKABLE(0),
