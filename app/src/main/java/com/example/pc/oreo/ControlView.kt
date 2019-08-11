@@ -53,10 +53,14 @@ class ControlView : View {
             MotionEvent.ACTION_POINTER_UP -> {
                 ids[event.actionIndex] = null
                 types = ids.map { i -> getTouchType(event.getPointerCoordinates(i)) }.toTypedArray()
+                if (!types.contains(TouchType.STEER)) {
+                    controlViewListener.returnToCenter()
+                }
             }
             MotionEvent.ACTION_UP -> {
                 ids.fill(null)
                 types.fill(null)
+                controlViewListener.returnToCenter()
             }
             MotionEvent.ACTION_MOVE -> {
                 val points = ids.map { i -> event.getPointerCoordinates(i) }
@@ -115,5 +119,6 @@ class ControlView : View {
     interface ControlViewListener {
         fun onSteer(angle: Float)
         fun onAccelerate(power: Float)
+        fun returnToCenter()
     }
 }

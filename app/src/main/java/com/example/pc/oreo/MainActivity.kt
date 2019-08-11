@@ -1,6 +1,7 @@
 package com.example.pc.oreo
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -218,6 +219,16 @@ class MainActivity : AppCompatActivity(), WifiConnector.OreoWifiDataChangeListen
     override fun onSteer(angle: Float) {
         if (oreo.controlCommand.selfDrive != Oreo.DriveMode.AUTONOMOUS)
             oreo.controlCommand.steerPercentage = angle
+    }
+
+    override fun returnToCenter() {
+        ValueAnimator.ofFloat(oreo.controlCommand.steerPercentage, 0.0f).apply {
+            duration = 500
+            addUpdateListener {
+                oreo.controlCommand.steerPercentage = it.animatedValue as Float
+            }
+            start()
+        }
     }
 
     private fun requestAllPermissions() {
